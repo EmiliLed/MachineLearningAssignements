@@ -65,4 +65,20 @@ plt.ylabel("Predicted count")
 plt.title("Random Forest Predictions without DR")
 plt.show()
 
-#Different DR techniques
+#Different DR Techniques
+
+# Using PCA reduced data
+X_train_pca, X_test_pca, y_train_pca, y_test_pca = train_test_split(pca_result, df['count'].values, test_size=0.2, random_state=42)
+model_pca = RandomForestRegressor(n_estimators=100, random_state=42)
+model_pca.fit(X_train_pca, y_train_pca)
+y_pred_pca = model_pca.predict(X_test_pca)
+mse_pca = mean_squared_error(y_test_pca, y_pred_pca)
+print("Mean Squared Error with PCA:", mse_pca)
+#plot predicted vs actual for PCA
+plt.scatter(y_test_pca, y_pred_pca)
+plt.xlabel("Actual count")
+plt.ylabel("Predicted count")
+plt.title("Random Forest Predictions with PCA")
+plt.show()
+
+
