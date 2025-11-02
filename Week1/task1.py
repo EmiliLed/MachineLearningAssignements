@@ -1,11 +1,13 @@
 import pandas as pd
 from scipy.io import arff
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+
 
 #Compare PCA and t-SNE methods by visualizing Bike Sharing Rental dataset. Explore how
 #the different features are shown in the DR components. Build a simple prediction model (for
@@ -32,7 +34,6 @@ pca_result = pca.fit_transform(features_scaled)
 print("Explained variance ratio:", pca.explained_variance_ratio_)
 
 #t-SNE
-from sklearn.manifold import TSNE
 tsne = TSNE(n_components=2, random_state=42)
 tsne_result = tsne.fit_transform(features_scaled)
 
@@ -75,10 +76,28 @@ y_pred_pca = model_pca.predict(X_test_pca)
 mse_pca = mean_squared_error(y_test_pca, y_pred_pca)
 print("Mean Squared Error with PCA:", mse_pca)
 #plot predicted vs actual for PCA
-plt.scatter(y_test_pca, y_pred_pca)
-plt.xlabel("Actual count")
-plt.ylabel("Predicted count")
-plt.title("Random Forest Predictions with PCA")
+
+
+# Using t-SNE reduced data
+X_train_tsne, X_test_tsne, y_train_tsne, y_test_tsne = train_test_split(tsne_result, df['count'].values, test_size=0.2, random_state=42)
+model_tsne = RandomForestRegressor(n_estimators=100, random_state=42)
+model_tsne.fit(X_train_tsne, y_train_tsne)
+y_pred_tsne = model_tsne.predict(X_test_tsne)
+mse_tsne = mean_squared_error(y_test_tsne, y_pred_tsne)
+print("Mean Squared Error with t-SNE:", mse_tsne)
+
+
+
+fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+
+ax[0].scatter(y_test_pca, y_pred_pca)
+ax[0].set_xlabel("Actual count")
+ax[0].set_ylabel("Predicted count")
+ax[0].set_title("Random Forest Predictions with PCA")
+
+ax[1].scatter(y_test_tsne, y_pred_tsne)
+ax[1].set_xlabel("Actual count")
+ax[1].set_ylabel("Predicted count")
+ax[1].set_title("Random Forest Predictions with t-SNE")
+
 plt.show()
-
-
